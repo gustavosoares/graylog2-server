@@ -46,6 +46,7 @@ public final class MongoConnection {
     private DB db = null;
 
     private DBCollection messagesCollection = null;
+    private DBCollection coldMessagesCollection = null;
     private DBCollection historicServerValuesCollection = null;
 
     private MongoConnection() {}
@@ -154,6 +155,45 @@ public final class MongoConnection {
         return coll;
     }
 
+    /**
+     * Get the cold messages collection. Lazily creates a new, capped one based on the
+     * messages_collection_size from graylog2.conf if there is none.
+     * This Collection stores all messages sent to graylog and should be use by the "cold" search.
+     *
+     * @return The messages collection
+     */
+    public DBCollection getColdMessagesColl() {
+        if (this.coldMessagesCollection != null) {
+            return this.coldMessagesCollection;
+        }
+
+        // Collection has not been cached yet. Do it now.
+        DBCollection coll = null;
+
+        // Create a collection if the collection does not yet exist.
+        if(MongoConnection.getInstance().getDatabase().collectionExists("coldmessages")) {
+            coll = MongoConnection.getInstance().getDatabase().getCollection("coldmessages");
+        } else {
+            //long messagesCollSize = Long.parseLong(Main.masterConfig.getProperty("messages_collection_size").trim());
+            coll = MongoConnection.getInstance()
+                    .getDatabase()
+                    .createCollection("coldmessages", BasicDBObjectBuilder.start()
+                    .get());
+        }
+
+        coll.ensureIndex(new BasicDBObject("_id", 1));
+        coll.ensureIndex(new BasicDBObject("created_at", 1));
+        coll.ensureIndex(new BasicDBObject("host", 1));
+        coll.ensureIndex(new BasicDBObject("streams", 1));
+
+        coll.ensureIndex(new BasicDBObject("facility", 1));
+        coll.ensureIndex(new BasicDBObject("level", 1));
+
+        this.coldMessagesCollection = coll;
+        return coll;
+    }
+    
+    
     public DBCollection getHistoricServerValuesColl() {
         if (this.historicServerValuesCollection != null) {
             return this.historicServerValuesCollection;

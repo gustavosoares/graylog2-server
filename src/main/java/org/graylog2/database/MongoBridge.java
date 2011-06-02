@@ -55,7 +55,8 @@ public class MongoBridge {
         }
 
         DBCollection coll = MongoConnection.getInstance().getMessagesColl();
-
+        DBCollection cold_coll = MongoConnection.getInstance().getColdMessagesColl();
+        
         BasicDBObject dbObj = new BasicDBObject();
 
         dbObj.put("message", message.getShortMessage());
@@ -88,6 +89,7 @@ public class MongoBridge {
         dbObj.put("streams", message.getStreamIds());
 
         coll.insert(dbObj);
+        cold_coll.insert(dbObj);	
     }
 
     /**
