@@ -193,7 +193,6 @@ public final class MongoConnection {
         return coll;
     }
     
-    
     public DBCollection getHistoricServerValuesColl() {
         if (this.historicServerValuesCollection != null) {
             return this.historicServerValuesCollection;

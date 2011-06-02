@@ -29,7 +29,6 @@ import org.productivity.java.syslog4j.server.SyslogServerIF;
 import org.productivity.java.syslog4j.server.SyslogServerSessionlessEventHandlerIF;
 
 import java.net.SocketAddress;
-import org.joda.time.DateTime;
 
 /**
  * SyslogEventHandler.java: May 17, 2010 8:58:18 PM
@@ -66,28 +65,16 @@ public class SyslogEventHandler implements SyslogServerSessionlessEventHandlerIF
         LOG.info("Facility: " + event.getFacility() + " (" + Tools.syslogFacilityToReadable(event.getFacility()) + ")");
         LOG.info("Level: " + event.getLevel() + " (" + Tools.syslogLevelToReadable(event.getLevel()) + ")");
         LOG.info("Raw: " + new String(event.getRaw()));
-
-        // Use JodaTime to easy get the milliseconds and construct a float. (This looks dumb but is the easiest and safest way)
-        try {
-            DateTime jt = new DateTime(event.getDate().getTime());
-            String unixTime = String.valueOf(event.getDate().getTime()/1000L);
-            String millis = String.valueOf(jt.getMillisOfSecond());
-            Double milliSecondTime = new Double(unixTime + "." + millis);
-            gelf.setCreatedAt(milliSecondTime.doubleValue());
-        } catch (NumberFormatException e) {
-            LOG.error("Could not determine milliseconds of syslog message. (NumberFormatException)");
-        }
         
-
+        // Convert SyslogServerEventIF to GELFMessage and pass to SimpleGELFClientHandler
         gelf.setConvertedFromSyslog(true);
         gelf.setVersion("0");
         gelf.setShortMessage(event.getMessage());
-        
         gelf.setHost(event.getHost());
         gelf.setFacility(Tools.syslogFacilityToReadable(event.getFacility()));
         gelf.setLevel(event.getLevel());
         gelf.setRaw(event.getRaw());
-
+        
         try {
             SimpleGELFClientHandler gelfHandler = new SimpleGELFClientHandler(gelf);
             gelfHandler.handle();

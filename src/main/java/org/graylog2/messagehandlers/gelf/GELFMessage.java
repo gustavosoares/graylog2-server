@@ -31,8 +31,8 @@ import org.graylog2.streams.StreamRule;
 import org.graylog2.streams.matchers.StreamRuleMatcherIF;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.zip.Deflater;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 /**
@@ -53,11 +53,11 @@ public class GELFMessage {
     private String host = null;
     private String file = null;
     private int line = 0;
+    private int timestamp = 0;
     private String facility = null;
     private Map<String, String> additionalData = new HashMap<String, String>();
     private List<Stream> streams = null;
     private boolean convertedFromSyslog = false;
-    private double createdAt = 0;
 
     private boolean filterOut = false;
     private boolean doRouting = true;
@@ -195,6 +195,20 @@ public class GELFMessage {
     }
 
     /**
+     * @return the timestamp
+     */
+    public int getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * @param timestamp the timestamp to set
+     */
+    public void setTimestamp(int timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    /**
      * @return the facility
      */
     public String getFacility() {
@@ -221,9 +235,7 @@ public class GELFMessage {
      * Add a key/value pair
      */
     public void addAdditionalData(String key, String value) {
-        if (key != null && value != null) {
-            this.additionalData.put(key, value);
-        }
+        this.additionalData.put(key, value);
     }
     
     /**
@@ -301,7 +313,7 @@ public class GELFMessage {
 
         for (Blacklist blacklist : blacklists) {
             for (BlacklistRule rule : blacklist.getRules()) {
-                if (Pattern.compile(rule.getTerm(), Pattern.DOTALL).matcher(this.getShortMessage()).matches()) {
+                if (this.getShortMessage().matches(rule.getTerm())) {
                     LOG.info("Message <" + this.toString() + "> is blacklisted. First match on " + rule.getTerm());
                     return true;
                 }
@@ -436,20 +448,6 @@ public class GELFMessage {
         obj.put("version", this.getVersion());
 
         return JSONValue.toJSONString(obj);
-    }
-
-    /**
-     * @return the createdAt
-     */
-    public double getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * @param createdAt the createdAt to set
-     */
-    public void setCreatedAt(double createdAt) {
-        this.createdAt = createdAt;
     }
 
 }

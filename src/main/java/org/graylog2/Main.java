@@ -174,13 +174,12 @@ public final class Main {
         }
 
         // Fill some stuff into the server_values collection.
-        ServerValue sv = new ServerValue("d3b07384d113edec49eaa6238ad5ff01");
-        /*ServerValue.setStartupTime(Tools.getUTCTimestamp());
+        ServerValue.setStartupTime(Tools.getUTCTimestamp());
         ServerValue.setPID(Integer.parseInt(Tools.getPID()));
         ServerValue.setJREInfo(Tools.getSystemInformation());
         ServerValue.setGraylog2Version(GRAYLOG2_VERSION);
         ServerValue.setAvailableProcessors(HostSystem.getAvailableProcessors());
-        ServerValue.setLocalHostname(Tools.getLocalHostname());*/
+        ServerValue.setLocalHostname(Tools.getLocalHostname());
 
         // Create Rules Engine
         try {
@@ -255,8 +254,8 @@ public final class Main {
         throughputThread.start();
 
         // Start thread that stores system information periodically.
-        //ServerValueWriterThread serverValueThread = new ServerValueWriterThread();
-        //serverValueThread.start();
+        ServerValueWriterThread serverValueThread = new ServerValueWriterThread();
+        serverValueThread.start();
 
         LOG.info("[x] Graylog2 up and running.");
     }

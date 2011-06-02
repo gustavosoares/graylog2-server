@@ -45,17 +45,13 @@ public class Router {
         ArrayList<Stream> matches = new ArrayList<Stream>();
         ArrayList<Stream> streams = null;
         try {
-            streams = Stream.fetchAllEnabled();
+            streams = Stream.fetchAll();
         } catch (Exception e) {
             LOG.error("Could not fetch streams: " + e.getMessage(), e);
         }
 
         for (Stream stream : streams) {
             boolean missed = false;
-
-            if (stream.getStreamRules().isEmpty()) {
-                continue;
-            }
 
             for (StreamRule rule : stream.getStreamRules()) {
                 try {

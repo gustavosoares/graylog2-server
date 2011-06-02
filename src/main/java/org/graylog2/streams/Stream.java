@@ -55,7 +55,7 @@ public class Stream {
         this.mongoObject = stream;
     }
 
-    public static ArrayList<Stream> fetchAllEnabled() {
+    public static ArrayList<Stream> fetchAll() {
         if (StreamCache.getInstance().valid()) {
             return StreamCache.getInstance().get();
         }
@@ -63,9 +63,7 @@ public class Stream {
         ArrayList<Stream> streams = new ArrayList<Stream>();
 
         DBCollection coll = MongoConnection.getInstance().getDatabase().getCollection("streams");
-        DBObject query = new BasicDBObject();
-        query.put("disabled", new BasicDBObject("$ne", true));
-        DBCursor cur = coll.find(query);
+        DBCursor cur = coll.find(new BasicDBObject());
 
         while (cur.hasNext()) {
             try {

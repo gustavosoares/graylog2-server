@@ -56,8 +56,14 @@ public class MongoBridge {
 
         DBCollection coll = MongoConnection.getInstance().getMessagesColl();
         DBCollection cold_coll = MongoConnection.getInstance().getColdMessagesColl();
-        
+
         BasicDBObject dbObj = new BasicDBObject();
+
+        // Some fields must not be set if this message was converted from a syslog message.
+        if (!message.convertedFromSyslog()) {
+            dbObj.put("gelf", true);
+            dbObj.put("version", message.getVersion());
+        }
 
         dbObj.put("message", message.getShortMessage());
         dbObj.put("full_message", message.getFullMessage());
@@ -66,6 +72,7 @@ public class MongoBridge {
         dbObj.put("host", message.getHost());
         dbObj.put("facility", message.getFacility()); 
         dbObj.put("level", message.getLevel());
+        dbObj.put("timestamp", message.getTimestamp());
         
         // Add additional fields. XXX PERFORMANCE
         Map<String,String> additionalFields = message.getAdditionalData();
@@ -77,19 +84,14 @@ public class MongoBridge {
             dbObj.put(key, value);
         }
 
-        if (message.getCreatedAt() == 0) {
-            dbObj.put("created_at", Tools.getUTCTimestampWithMilliseconds());
-        } else {
-            dbObj.put("created_at", message.getCreatedAt());
-        }
-
+        dbObj.put("created_at", Tools.getUTCTimestamp());
         // Documents in capped collections cannot grow so we have to do that now and cannot just add 'deleted => true' later.
         dbObj.put("deleted", false);
 
         dbObj.put("streams", message.getStreamIds());
 
         coll.insert(dbObj);
-        cold_coll.insert(dbObj);	
+        cold_coll.insert(dbObj);
     }
 
     /**
