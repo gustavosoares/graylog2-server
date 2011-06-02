@@ -5,6 +5,7 @@
 target
 build/*
 dist/*
+bin/*
 build-before-profiler.xml
 nbbuild.xml
 nbproject/*
