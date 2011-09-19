@@ -37,6 +37,8 @@ public class StreamRule {
     public final static int TYPE_SEVERITY = 3;
     public final static int TYPE_FACILITY = 4;
     public final static int TYPE_ADDITIONAL = 6;
+    public final static int TYPE_HOSTGROUP = 7;
+    public final static int TYPE_SEVERITY_OR_HIGHER = 8;
 
     private ObjectId objectId = null;
     private int ruleType = 0;
